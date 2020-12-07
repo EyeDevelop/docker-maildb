@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Get the alias to delete.
+echo -n "From email: "
+read -r from_email
+
+# Ask for confirmation.
+echo "THIS WILL DELETE ALIAS: $from_email"
+echo -n "Are you sure (y/N): "
+read -r delete_confirmation
+
+if [[ "${delete_confirmation,,}" != "y" ]]; then
+  echo "Aborting."
+  exit 0
+fi
+
+# Delete the alias.
+cat << EOF | /usr/bin/mysql -u root -p"$MYSQL_ROOT_PASSWORD"
+USE maildb;
+DELETE FROM aliases
+WHERE source = '$from_email';
+EOF
+
+# Done!
+echo "Alias $from_email has been deleted."

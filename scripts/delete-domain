@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Ask for the domain to delete.
+echo -n "Enter the domain name: "
+read -r domain_name
+
+# Ask for confirmation.
+echo "THIS WILL DELETE DOMAIN: $domain_name"
+echo "ALL ITS USERS AND ALL ALIASES."
+echo -n "Are you sure (y/N): "
+read -r delete_confirmation
+
+if [[ "${delete_confirmation,,}" != "y" ]]; then
+  echo "Aborting."
+  exit 0
+fi
+
+# Delete the domain.
+# Also deletes all aliases and users
+# belonging to this domain.
+cat << EOF | /usr/bin/mysql -u root -p"$MYSQL_ROOT_PASSWORD"
+USE maildb;
+DELETE FROM domains
+WHERE domain_name = '$domain_name' CASCADE;
+EOF
+
+# Done!
+echo "Domain $domain_name has been deleted."

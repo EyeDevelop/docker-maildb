@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Ask the user for the new domain name.
+echo -n "Enter the domain name: "
+read -r domain_name
+
+# Create the domain in the database.
+cat << EOF | /usr/bin/mysql -u root -p"$MYSQL_ROOT_PASSWORD"
+USE maildb;
+INSERT INTO domains (name) VALUES ('$domain_name');
+EOF
+
+# Done!
+echo "$domain_name has been created!"

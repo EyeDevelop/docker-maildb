@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Ask the user for the new user details.
+echo -n "Enter the email address: "
+read -r new_email
+
+domain_name=$(echo "$new_email" | awk -F'@' '{print $2}')
+
+echo -n "Enter the password: "
+read -sr new_password
+echo
+
+# Create the domain in the database.
+cat << EOF | /usr/bin/mysql -u root -p"$MYSQL_ROOT_PASSWORD"
+USE maildb;
+INSERT INTO users (domain_id, email, hash)
+  SELECT
+    d.id AS domain_id,
+    '$new_email' AS email,
+    ENCRYPT('$new_password', CONCAT('\$6\$', SUBSTRING(SHA(RAND()), -16))) AS hash
+
+  FROM domains d
+  WHERE name = '$domain_name';
+EOF
+
+# Done!
+echo "$new_email has been created!"

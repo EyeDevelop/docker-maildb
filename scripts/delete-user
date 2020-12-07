@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Ask for the user.
+echo -n "Enter the email address: "
+read -r email
+
+# Ask for confirmation.
+echo "THIS WILL DELETE USER: $email"
+echo "( The mailbox itself will remain. )"
+echo -n "Are you sure (y/N): "
+read -r delete_confirmation
+
+if [[ "${delete_confirmation,,}" != "y" ]]; then
+  echo "Aborting."
+  exit 0
+fi
+
+# Delete the user.
+cat << EOF | /usr/bin/mysql -u root -p"$MYSQL_ROOT_PASSWORD"
+USE maildb;
+DELETE FROM users
+WHERE email = '$email';
+EOF
+
+# Done!
+echo "User $email has been deleted."

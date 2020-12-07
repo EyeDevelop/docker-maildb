@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Ask the user for the forwarding details.
+echo -n "From email: "
+read -r from_email
+
+domain_name=$(echo "$from_email" | awk -F'@' '{print $2}')
+
+echo -n "To email: "
+read -r to_email
+
+# Create the alias in the database.
+cat << EOF | /usr/bin/mysql -u root -p"$MYSQL_ROOT_PASSWORD"
+USE maildb;
+INSERT INTO aliases (domain_id, source, destination)
+  SELECT
+    d.id AS domain_id,
+    '$from_email' AS source,
+    '$to_email' AS destination
+  FROM domains d
+  WHERE name = '$domain_name';
+EOF
+
+# Done!
+echo "$from_email --> $to_email has been created!"
