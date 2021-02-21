@@ -7,4 +7,4 @@ if [[ ! -f /.set_password ]]; then
 fi
 
 # Run the original entrypoint.
-/usr/local/bin/docker-entrypoint.sh "$@"
+exec /usr/local/bin/docker-entrypoint.sh "$@"
